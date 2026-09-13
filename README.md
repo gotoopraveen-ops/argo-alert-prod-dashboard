@@ -13,12 +13,17 @@ Published at https://gotoopraveen-ops.github.io/argo-alert-prod-dashboard/
 A customer signs in with a single line:
 
 ```
-stmarys:8Kd2mQp7Xr4T
+stmarys:<the password you set in the console>
 ```
 
-That is their broker account. Everything follows from it. The part before the
-colon is also their topic prefix, so one line carries both who they are and
-where their panels live.
+That is their broker account, written as one line. In HiveMQ those are two
+separate fields; the colon is only how the two are joined together for the
+customer to type once.
+
+The part before the colon is also their topic prefix, so one line carries both
+who they are and where their panels live.
+
+**Never use a password written in this file.** It is a public repository.
 
 Nothing about the key is checked here. The broker either accepts it or does
 not, which is the only opinion that counts. A key that works reaches exactly
