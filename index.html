@@ -372,6 +372,18 @@ function credentialsFromLink(){
 
 var client = null, cfg = null, current = null;
 var signedIn = false;
+
+/* Somebody who deliberately opened the broker screen is troubleshooting, and a
+   successful connection is not a reason to take it away from them. Without
+   this the screen appeared and then vanished the moment the broker answered,
+   which is exactly when it is wanted. */
+var brokerPinned = false;
+
+function showBroker(){
+  brokerPinned = true;
+  $("cfgBtn").hidden = false;
+  $("cfgPanel").style.display = "block";
+}
 var everConnected = false;
 var lastSeenAt = 0;      // when this device last said anything at all
 var devices = {};          // deviceId -> {state, config, status}
@@ -591,7 +603,7 @@ function connect(){
     brokerState("connected", "ok");
     everConnected = true;
     netWarn("");
-    $("cfgPanel").style.display = "none";
+    if (!brokerPinned) $("cfgPanel").style.display = "none";
     var base = "argo/" + cfg.tenant + "/" + cfg.device + "/";
     ["status","config","state","event"].forEach(function(leaf){
       client.subscribe(base + leaf, {qos: 1});
@@ -614,8 +626,7 @@ function connect(){
     // Only a credential problem is worth putting a technical screen in front of
     // a nurse. A dropped connection retries on its own and needs no one.
     if (/Not authorized|Bad username/i.test(text)){
-      $("cfgBtn").hidden = false;
-      $("cfgPanel").style.display = "block";
+      showBroker();
     }
   });
   client.on("message", onMessage);
@@ -1141,10 +1152,7 @@ $("cfgBtn").addEventListener("click", function(){
 
 /* Still reachable when something is wrong, without being on screen for staff:
    add ?broker to the address, or tap the connection line five times. */
-if (location.search.indexOf("broker") >= 0){
-  $("cfgBtn").hidden = false;
-  $("cfgPanel").style.display = "block";
-}
+if (location.search.indexOf("broker") >= 0) showBroker();
 (function(){
   var taps = 0, last = 0;
   document.querySelector(".conn").addEventListener("click", function(){
@@ -1153,8 +1161,7 @@ if (location.search.indexOf("broker") >= 0){
     last = now;
     if (taps >= 5){
       taps = 0;
-      $("cfgBtn").hidden = false;
-      $("cfgPanel").style.display = "block";
+      showBroker();
     }
   });
 })();
