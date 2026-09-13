@@ -187,12 +187,9 @@ input,select{width:100%;padding:10px;border:1px solid var(--line);border-radius:
       <div class="row"><label for="tenant">Tenant</label><input type="text" id="tenant" autocapitalize="off"></div>
       <div class="row"><label for="device">Device filter</label><input type="text" id="device" autocapitalize="off"></div>
     </div>
-    <div class="two">
     <div class="help" style="margin-bottom:12px">Device filter accepts + to watch
-      every panel belonging to this tenant. The panel id and key are only needed
-      here if you did not arrive from the app: without a key this page can watch
-      a panel but not command it. Both are printed on the panel's own settings
-      screen and in its serial banner.</div>
+      every panel belonging to this tenant. Nothing else is needed here: the
+      broker decides what this account may see, and it is the customer's own.</div>
     <button class="act" id="connectBtn">CONNECT</button>
     <div class="help" id="cfgMsg" style="text-align:center;min-height:14px;margin-top:9px"></div>
   </div>
