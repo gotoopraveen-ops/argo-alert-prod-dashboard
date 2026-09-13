@@ -388,7 +388,10 @@ function parseSiteKey(text){
   var raw = String(text || "").trim();
   var colon = raw.indexOf(":");
   if (colon < 1 || colon === raw.length - 1) return null;
-  return { user: raw.substring(0, colon), pass: raw.substring(colon + 1) };
+  // Trim the name but never the password. A keyboard adds a space after a word
+  // more often than anybody types one into a name, and a trailing space there
+  // is invisible and gets refused with a message that blames the password.
+  return { user: raw.substring(0, colon).trim(), pass: raw.substring(colon + 1) };
 }
 
 function showLogin(note){
