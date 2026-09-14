@@ -355,7 +355,6 @@ function credentialsFromLink(){
 
   var parts = new URLSearchParams(raw);
   if (!parts.get("u")) return null;
-  arrivedFromApp = true;
 
   var found = {
     user: parts.get("u") || "",
