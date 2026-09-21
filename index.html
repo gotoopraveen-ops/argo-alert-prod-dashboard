@@ -933,7 +933,11 @@ function loadSettingsForm(){
   $("setWho").textContent = "Editing " + (c.panelName || current) +
     (dev.status === "online" ? "" : " — panel offline, changes will not arrive");
 
-  fillOptions($("pChannels"), 15, function(i){ return (i+1) + (i === 0 ? " channel" : " channels"); }, 1);
+  // However many rooms this panel actually has: fifteen on a single-board
+  // panel, thirty when a room extender is fitted. This was fixed at fifteen,
+  // so rooms 16 to 30 appeared on the dashboard but could not be set from it.
+  var maxRooms = (c.totalChannels || 17) - 2;
+  fillOptions($("pChannels"), maxRooms, function(i){ return (i+1) + (i === 0 ? " channel" : " channels"); }, 1);
   fillOptions($("pCallTone"), TONE_NAMES.length, function(i){ return (i+1) + ". " + TONE_NAMES[i]; });
   fillOptions($("pRemTone"),  TONE_NAMES.length, function(i){ return (i+1) + ". " + TONE_NAMES[i]; });
 
