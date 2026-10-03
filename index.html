@@ -833,6 +833,18 @@ function render(){
       : kind === 1 ? (attending ? "DOCTOR · ATTENDING" : "DOCTOR CALL")
       : (attending ? "ATTENDING" : "CALL ACTIVE");
 
+    /* The customer's own colour for the button that was pressed, sent by
+       panels on rf31 or later. Only the edge and the state word take it: the
+       class still decides what flashes, because that is about urgency and a
+       colour is not. An older panel sends none and the card looks as it
+       always did. */
+    var col = (ch.s !== 0 && ch.k) ? ("#" + ch.k) : "";
+    if (c.root.dataset.col !== col) {
+      c.root.dataset.col = col;
+      c.root.style.borderColor = col;
+      c.state.style.color = col;
+    }
+
     // Urgency floats to the top, so an emergency is never below the fold.
     c.root.style.order = ch.s === 0 ? 600 : ((2 - kind) * 2 + (waiting ? 0 : 1)) * 100 + p;
     c.time.hidden = ch.s === 0;
