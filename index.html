@@ -828,7 +828,7 @@ function render(){
     if (ch.s !== 0 && kind === 2) cls += " emergency";
     c.root.className = cls;
 
-    c.state.textContent = ch.s === 0 ? "NORMAL"
+    c.state.textContent = ch.s === 0 ? (ch.nt && ch.t ? ch.t : "NORMAL")
       : kind === 2 ? (attending ? "EMERGENCY · ATTENDING" : "EMERGENCY")
       : kind === 1 ? (attending ? "DOCTOR · ATTENDING" : "DOCTOR CALL")
       : (attending ? "ATTENDING" : "CALL ACTIVE");
@@ -838,7 +838,7 @@ function render(){
        class still decides what flashes, because that is about urgency and a
        colour is not. An older panel sends none and the card looks as it
        always did. */
-    var col = (ch.s !== 0 && ch.k) ? ("#" + ch.k) : "";
+    var col = ((ch.s !== 0 || ch.nt) && ch.k) ? ("#" + ch.k) : "";
     if (c.root.dataset.col !== col) {
       c.root.dataset.col = col;
       c.root.style.borderColor = col;
@@ -855,7 +855,7 @@ function render(){
     /* "+2 more" = further requests the panel refused because a higher-class
        call is still live on that room. They are on the staff screen; this is
        so a ward looking at the wall knows they exist. */
-    c.sub.textContent = ch.s === 0 ? "Ready"
+    c.sub.textContent = ch.s === 0 ? (ch.nt ? "Notice · no call raised" : "Ready")
       : (ch.t ? ch.t + " · " : "") +
         (ch.x ? "+" + ch.x + " more · " : "") +
         "Reminders " + ch.m + (conf ? " / " + conf.reminders : "");
