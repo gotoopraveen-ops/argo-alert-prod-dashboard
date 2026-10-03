@@ -351,7 +351,10 @@ var RELAY_HOST = "argo-relay.gotoopraveen.workers.dev";
 
 var DEFAULTS = {
   host: RELAY_HOST,
-  port: 443, path: "/", user: "", pass: "",
+  // "/?broker=argo" reaches our own broker through the relay. It is the
+  // default because it is where the product lives; a panel still on the old
+  // HiveMQ broker needs "/" typed here instead, which is a shrinking set.
+  port: 443, path: "/?broker=argo", user: "", pass: "",
   tenant: "demo", device: "+"
 };
 
