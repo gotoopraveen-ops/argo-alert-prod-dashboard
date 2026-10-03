@@ -852,8 +852,12 @@ function render(){
     /* What the person actually asked for, when the request came from a phone
        and the panel is new enough to pass it on. Older panels send no such
        field, so this reads exactly as it always did for them. */
+    /* "+2 more" = further requests the panel refused because a higher-class
+       call is still live on that room. They are on the staff screen; this is
+       so a ward looking at the wall knows they exist. */
     c.sub.textContent = ch.s === 0 ? "Ready"
       : (ch.t ? ch.t + " · " : "") +
+        (ch.x ? "+" + ch.x + " more · " : "") +
         "Reminders " + ch.m + (conf ? " / " + conf.reminders : "");
     // A panel that is offline cannot act on a command, so do not offer one.
     c.acc.disabled = !waiting || !online;
