@@ -834,8 +834,12 @@ function render(){
     c.root.style.order = ch.s === 0 ? 600 : ((2 - kind) * 2 + (waiting ? 0 : 1)) * 100 + p;
     c.time.hidden = ch.s === 0;
     if (ch.s !== 0) c.time.textContent = fmt(ch.r);
+    /* What the person actually asked for, when the request came from a phone
+       and the panel is new enough to pass it on. Older panels send no such
+       field, so this reads exactly as it always did for them. */
     c.sub.textContent = ch.s === 0 ? "Ready"
-      : "Reminders " + ch.m + (conf ? " / " + conf.reminders : "");
+      : (ch.t ? ch.t + " · " : "") +
+        "Reminders " + ch.m + (conf ? " / " + conf.reminders : "");
     // A panel that is offline cannot act on a command, so do not offer one.
     c.acc.disabled = !waiting || !online;
     c.res.disabled = ch.s === 0 || !online;
