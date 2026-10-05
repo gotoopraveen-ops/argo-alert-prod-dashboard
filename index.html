@@ -317,7 +317,7 @@ input,select{width:100%;padding:10px;border:1px solid var(--line);border-radius:
       <div class="sheetSub" id="sheetSub"></div>
       <button class="sheetBtn doc"   id="sheetDoctor">&nbsp;</button>
       <button class="sheetBtn eme"   id="sheetEmergency">&nbsp;</button>
-      <button class="sheetBtn amb"   id="sheetAccept" hidden>ACCEPT THIS CALL</button>
+      <button class="sheetBtn amb"   id="sheetAccept" hidden>I'LL GO</button>
       <button class="sheetBtn"       id="sheetClear" hidden>MARK AS DONE</button>
       <button class="sheetBtn ghost" id="sheetCancel">Cancel</button>
     </div>
@@ -753,8 +753,8 @@ function buildCards(indexes){
       '<div style="text-align:center"><div class="bstate">NORMAL</div>'+
         '<div class="btime" hidden></div><div class="bsub">Ready</div></div>'+
       '<div class="bbtns">'+
-        '<button class="pb acc" disabled>ACCEPT</button>'+
-        '<button class="pb res" disabled>CLEAR</button></div>';
+        '<button class="pb acc" disabled>I\'LL GO</button>'+
+        '<button class="pb res" disabled>DONE</button></div>';
     (function(index){
       box.querySelector(".acc").addEventListener("click", function(e){
         e.stopPropagation(); send("accept", index);
