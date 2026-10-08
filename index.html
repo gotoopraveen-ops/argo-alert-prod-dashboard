@@ -349,6 +349,18 @@ var EV = {1:["Call","call"],2:["Reminder","rem"],3:["Accepted","ok"],4:["Cleared
    what. Source and reasoning live in the argo_relay folder. */
 var RELAY_HOST = "argo-relay.gotoopraveen.workers.dev";
 
+/* Two ways to the same broker, tried in this order. Direct is our own server
+   in Mumbai on 443: the shortest path and nobody in the middle. The relay is
+   the fallback -- Jio's route to Cloudflare drops connections now and then,
+   but on a network that cannot reach the server directly the relay may still
+   get through. Both end at the same broker with the same account, so which
+   one carried the page makes no difference to anything it shows. */
+var DIRECT_HOST = "aptalrt.duckdns.org";
+var ROUTES = [
+  { name: "direct", host: DIRECT_HOST, port: 443, path: "/mqtt" },
+  { name: "relay",  host: RELAY_HOST,  port: 443, path: "/?broker=argo" }
+];
+
 var DEFAULTS = {
   host: RELAY_HOST,
   // "/?broker=argo" reaches our own broker through the relay. It is the
@@ -556,22 +568,44 @@ function connect(){
   userPickedDevice = false;
   $("devicePick").innerHTML = ""; $("devicePick").classList.add("hide");
 
-  var url = "wss://" + cfg.host + ":" + cfg.port + cfg.path;
   brokerState("connecting", "");
   everConnected = false;
   brokerSaidNo = false;
   failedTries = 0;
   $("cfgMsg").textContent = "";
 
+  /* Our own broker, by either road, unless somebody typed a different one on
+     the Broker screen -- then exactly what they typed, and nothing else. */
+  var ours = cfg.host === RELAY_HOST || cfg.host === DIRECT_HOST;
+  routes = ours ? ROUTES.slice()
+                : [{ name: "custom", host: cfg.host, port: cfg.port, path: cfg.path }];
+  routeAt = 0;
+  openRoute();
+}
+
+var routes = [], routeAt = 0, routeFails = 0, routeEverUp = false;
+
+function openRoute(){
+  if (client) {
+    try { client.removeAllListeners(); client.end(true); } catch(e){}
+    client = null;
+  }
+  var route = routes[routeAt];
+  var url = "wss://" + route.host + ":" + route.port + route.path;
+  routeFails = 0;
+  routeEverUp = false;
+
   client = mqtt.connect(url, {
     username: cfg.user, password: cfg.pass,
-    clean: true, reconnectPeriod: 4000, connectTimeout: 10000,
+    clean: true, reconnectPeriod: 4000, connectTimeout: 8000,
     clientId: "argo-web-" + Math.random().toString(16).slice(2, 10)
   });
 
   client.on("connect", function(){
-    brokerState("connected", "ok");
+    brokerState("connected" + (routes.length > 1 ? " (" + route.name + ")" : ""), "ok");
     everConnected = true;
+    routeEverUp = true;
+    routeFails = 0;
     netWarn("");
     if (!brokerPinned) $("cfgPanel").style.display = "none";
     var base = "argo/" + cfg.tenant + "/" + cfg.device + "/";
@@ -582,6 +616,16 @@ function connect(){
   client.on("reconnect", function(){ brokerState("reconnecting", ""); });
   client.on("close", function(){
     brokerState("disconnected", "bad");
+    /* Try the other road. At once if this one never connected; after two
+       failed reconnects if it was working and has stopped. A refused login is
+       the broker's answer, the same by either road, so it changes nothing. */
+    routeFails++;
+    if (routes.length > 1 && !brokerSaidNo && routeFails >= (routeEverUp ? 2 : 1)) {
+      routeAt = (routeAt + 1) % routes.length;
+      setTimeout(openRoute, 300);
+      if (!everConnected) { failedTries++; diagnoseBroker(); }
+      return;
+    }
     // A connection that has worked once and dropped is retrying on its own and
     // needs no explanation.
     if (everConnected) return;
